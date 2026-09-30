@@ -1,0 +1,24 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+# Trusted publishing: RubyGems verifies this workflow's identity, so there is
+# no long lived API key in the repository to leak. Configure the publisher at
+# rubygems.org (a pending publisher before the first release) for
+# locio-au/locio-ruby, workflow release.yml.
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - run: ruby -w -Ilib -Itest -e 'Dir["./test/**/*_test.rb"].each { require _1 }'
+      - uses: rubygems/release-gem@v1
